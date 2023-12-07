@@ -30,13 +30,14 @@ runs:
         # write google application credentials to a temporary file to be used inside the container
         TMPDIR=$(mktemp -d)
         echo '${{ inputs.creds }}' > $TMPDIR/key.json
+        chmod 777 $TMPDIR/key.json
 
         # start container
         CONTAINER=$(docker run -d --net host --restart on-failure \
         -v $TMPDIR:/tmp/gce-cloudsql-proxy \
         gcr.io/cloudsql-docker/gce-proxy:${{ inputs.proxy_version }} \
         /cloud_sql_proxy \
-          -credential_file $TMPDIR/key.json \
+          -credential_file /tmp/gce-cloudsql-proxy/key.json \
           -dir /tmp \
           -instances=${{ inputs.instance }}=tcp:127.0.0.1:${{ inputs.port }})
 
